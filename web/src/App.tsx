@@ -10,15 +10,15 @@ import { AuthProvider, useAuth, authStorage } from './contexts/AuthContext';
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
   
-  // 使用authStorage检查认证状态
+  // Use authStorage to check authentication status
   const isLocalAuth = authStorage.getAuth();
   
-  // 如果上下文或本地存储中有有效的认证，则允许访问
+  // If there is valid authentication in the context or local storage, access is allowed
   if (isAuthenticated || isLocalAuth) {
     return <>{children}</>;
   }
   
-  // 否则重定向到登录页面
+  // Otherwise, redirect to the login page
   return <Navigate to="/login" replace />;
 }
 
@@ -41,7 +41,7 @@ function App() {
             }
           />
           
-          {/* Terminal page route - 不需要强制认证，改为直接访问，内部API调用会处理认证 */}
+          {/* Terminal page route - No mandatory authentication is required, but instead it is direct access. Internal API calls will handle authentication.*/}
           <Route 
             path="/terminal/:hostId"
             element={<TerminalPage />}

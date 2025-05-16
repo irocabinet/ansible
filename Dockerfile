@@ -14,7 +14,7 @@ WORKDIR /app
 COPY . .
 COPY --from=frontend /app/dist /app/public
 
-# 安装 Python 依赖
+
 RUN apk update && \
     apk add --no-cache openssh-client sshpass && \
     pip install --no-cache-dir -r requirements.txt && \

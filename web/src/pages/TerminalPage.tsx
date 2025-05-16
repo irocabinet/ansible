@@ -27,26 +27,26 @@ function TerminalPage() {
   const [isConnecting, setIsConnecting] = useState(true);
   const [wsToken, setWsToken] = useState<string | null>(null);
   
-  // 检查认证状态
+// Check the authentication status
   useEffect(() => {
-    // 在组件挂载时检查是否已认证
+// Check whether it is authenticated when the component is mounted
     const isAuthenticated = authStorage.getAuth();
     const hasToken = !!authStorage.getToken();
     
     if (!isAuthenticated || !hasToken) {
-      // 如果未认证，显示提示信息
-      toast.error("需要登录", { description: "请先登录系统才能使用终端功能" });
+// If not authenticated, prompt message is displayed
+      toast.error("Login required", { description: "Please log in to the system before using the terminal function" });
       
-      // 跳转到登录页
+// Jump to login page
       navigate('/login', { replace: true });
       return;
     }
     
-    // 获取WebSocket令牌
+// Get WebSocket token
     fetchWsToken();
     
     return () => {
-      // 组件卸载时清理
+// Clean up when component uninstallation
       if (socket.current) {
         socket.current.close();
       }
@@ -56,28 +56,28 @@ function TerminalPage() {
     };
   }, [hostId, navigate]);
 
-  // 获取WebSocket连接令牌
+// Get the WebSocket connection token
   const fetchWsToken = async () => {
     try {
       if (!hostId) {
-        toast.error("错误", { description: "无效的主机ID" });
+        toast.error("mistake", { description: "Invalid host ID" });
         return;
       }
       
-      // 添加token到请求中，自动由api拦截器处理
+// Add token to the request, automatically handled by the API interceptor
       const response = await api.get(`/api/ws-token/${hostId}`);
       const token = response.data.token;
       
       setWsToken(token);
       
-      // 获取到token后初始化终端并连接
+// After obtaining the token, initialize the terminal and connect
       if (terminalRef.current) {
         initializeTerminal(token);
       }
     } catch (error: any) {
-      toast.error("认证错误", { description: `无法获取终端连接授权` });
+      toast.error("Authentication error", { description: `Unable to obtain terminal connection authorization` });
       
-      // 如果是401错误，重定向到登录页
+      // If it is a 401 error, redirect to the login page
       if (error.response?.status === 401) {
         navigate('/login', { replace: true });
       }
@@ -85,11 +85,11 @@ function TerminalPage() {
   };
 
   const connectWebSocket = (token?: string) => {
-    // 优先使用传入的token，或者使用状态中的wsToken
+ // Priority is given to the incoming token, or use wsToken in the state
     const currentToken = token || wsToken;
     
     if (!hostId || !currentToken) {
-      toast.error("错误", { description: currentToken ? "无效的主机ID" : "未获取到连接授权" });
+      toast.error("mistake", { description: currentToken ? "Invalid host ID": "Connection authorization not obtained" });
       setIsConnecting(false);
       return;
     }
@@ -102,7 +102,7 @@ function TerminalPage() {
     setIsConnecting(true);
     setIsConnected(false);
     term.current?.clear();
-    term.current?.write('正在连接 WebSocket...\r\n');
+    term.current?.write('ConnectingWebSocket...\r\n');
 
     try {
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -112,7 +112,7 @@ function TerminalPage() {
       socket.current.onopen = () => {
         setIsConnected(true);
         setIsConnecting(false);
-        term.current?.write('\r\n\x1b[1;32m 正在连接主机终端 \x1b[0m\r\n');
+        term.current?.write('\r\n\x1b[1;32m Connecting to the host terminal \x1b[0m\r\n');
         // Fit terminal on connect and send initial size
         fitAddon.current?.fit(); 
         sendResize();
@@ -121,15 +121,15 @@ function TerminalPage() {
 
       socket.current.onmessage = (event: MessageEvent) => {
         try {
-          // 尝试解析JSON消息
+          // Try to parse JSON messages
           const data = JSON.parse(event.data);
           if (data.error) {
-            // 处理错误消息
-            term.current?.write(`\r\n\x1b[1;31m*** 错误: ${data.error} ***\x1b[0m\r\n`);
+            // Handle error messages
+            term.current?.write(`\r\n\x1b[1;31m*** mistake: ${data.error} ***\x1b[0m\r\n`);
             return;
           }
         } catch {
-          // 不是JSON，按正常文本处理
+          //Not JSON, process it according to normal text
           term.current?.write(event.data);
         }
       };
@@ -137,10 +137,10 @@ function TerminalPage() {
       socket.current.onclose = (event) => {
         setIsConnected(false);
         setIsConnecting(false);
-        term.current?.write(`\r\n\x1b[1;31m*** 连接已断开 ***\x1b[0m\r\n`);
+        term.current?.write(`\r\n\x1b[1;31m*** The connection has been disconnected ***\x1b[0m\r\n`);
         
-        // 如果是认证错误，重新获取令牌
-        if (event.code === 1008) { // Policy violation (可能是令牌过期)
+        //If it is an authentication error, re-get the token
+        if (event.code === 1008) { // Policy violation (Probably the token expires)
           fetchWsToken();
         }
       };
@@ -148,13 +148,13 @@ function TerminalPage() {
       socket.current.onerror = (_error) => {
         setIsConnected(false);
         setIsConnecting(false);
-        term.current?.write('\r\n\x1b[1;31m*** 连接错误 ***\x1b[0m\r\n');
-        toast.error("WebSocket 错误", { description: "无法连接到终端服务" });
+        term.current?.write('\r\n\x1b[1;31m*** Connection error ***\x1b[0m\r\n');
+        toast.error("WebSocket Error", { description: "Unable to connect to terminal service" });
       };
     } catch (error) {
       setIsConnecting(false);
-      term.current?.write('\r\n\x1b[1;31m*** WebSocket 创建失败 ***\x1b[0m\r\n');
-      toast.error("连接失败", { description: "无法创建 WebSocket 连接" });
+      term.current?.write('\r\n\x1b[1;31m*** WebSocket Creation failed ***\x1b[0m\r\n');
+      toast.error("Connection failed", { description: "Unable to create a WebSocket connection" });
     }
   };
 
@@ -223,7 +223,7 @@ function TerminalPage() {
       sendResize();
     });
     
-    // 设置窗口调整大小时自动fit终端
+// Automatically fit the terminal when the window is resized
     const resizeObserver = new ResizeObserver(() => {
       fitAddon.current?.fit();
     });
@@ -232,14 +232,14 @@ function TerminalPage() {
       resizeObserver.observe(terminalRef.current.parentElement);
     }
     
-    // 添加窗口resize监听作为后备
+// Add window resize listening as backup
     const handleWindowResize = () => fitAddon.current?.fit();
     window.addEventListener('resize', handleWindowResize);
     
-    // 初始化后立即连接WebSocket，传入token确保使用最新的token
+// Connect to WebSocket immediately after initialization, pass in token to ensure that the latest token is used
     connectWebSocket(token);
     
-    // 首次适配终端大小
+// First adapt to terminal size
     fitAddon.current.fit();
     
     return () => {
@@ -251,7 +251,7 @@ function TerminalPage() {
   return (
     <div className="flex flex-col h-screen bg-background">
       <header className="p-2 border-b flex items-center justify-between bg-card text-card-foreground">
-        <h1 className="text-lg font-semibold">终端 - 主机 ID: {hostId}</h1>
+        <h1 className="text-lg font-semibold">Terminal - Host ID: {hostId}</h1>
         <div className="flex items-center gap-2">
           <span className={`flex items-center gap-1 text-sm ${isConnected ? 'text-green-500' : 'text-red-500'}`}>
             {isConnecting ? (
@@ -261,7 +261,7 @@ function TerminalPage() {
             ) : (
               <CrossCircledIcon className="h-4 w-4" />
             )}
-            {isConnecting ? '连接中' : isConnected ? '已连接' : '已断开'}
+            {isConnecting ? 'Connected' : isConnected ? 'Connected' : 'Disconnected'}
           </span>
           <Button 
             variant="outline" 
@@ -270,14 +270,14 @@ function TerminalPage() {
             disabled={isConnecting}
           >
             <ReloadIcon className="mr-1 h-4 w-4" />
-            重新连接
+           Reconnect
           </Button>
           <Button 
             variant="outline" 
             size="sm" 
             onClick={() => term.current?.clear()}
           >
-            清屏
+          Pure Screen
           </Button>
         </div>
       </header>

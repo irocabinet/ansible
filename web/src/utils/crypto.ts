@@ -1,52 +1,51 @@
 /**
- * 密码处理工具
- * 
- * 前端不进行实际的加密/解密操作，而是通过识别后端传来的标记决定处理方式
- */
+* Password processing tool
+*
+* The front-end does not perform actual encryption/decryption operations, but determines the processing method by identifying the tags sent from the back-end.
+*/
 
 /**
- * 检查密码是否需要重新输入
- * @param host 主机信息
- * @returns 如果密码已加密且未被修改，返回true，否则返回false
- */
+* Check whether the password needs to be re-entered
+* @param host host information
+* @returns Return true if the password is encrypted and not modified, otherwise return false
+*/
 export const isPasswordEncrypted = (host: any): boolean => {
   return host && host.is_password_encrypted === true;
 };
 
 /**
- * 准备主机数据用于API提交
- * @param hostData 主机表单数据
- * @param originalHost 原始主机数据（编辑时有值）
- * @returns 处理后的主机数据
- */
+* Prepare host data for API submission
+* @param hostData host form data
+* @param originalHost OriginalHost (valued when editing)
+* @returns Processed host data
+*/
 export const prepareHostData = (hostData: any, originalHost?: any): any => {
-  // 复制主机数据
-  const preparedData = { ...hostData };
-  
-  // 如果是编辑模式，且密码为占位符，表示未修改密码
-  if (originalHost && preparedData.password === '********' && isPasswordEncrypted(originalHost)) {
-    // 不传递密码字段，后端将保留原密码
-    delete preparedData.password;
-  }
+// Copy host data
+const preparedData = { ...hostData };
+
+// If it is edit mode and the password is a placeholder, it means that the password has not been modified.
+if (originalHost && preparedData.password === '*********' && isPasswordEncrypted(originalHost)) {
+// If the password field is not passed, the backend will retain the original password
+delete preparedData.password;
+}
   
   return preparedData;
 };
 
 /**
- * 获取密码显示值
- * 对于已加密的密码，显示占位符，否则显示原始值
- * @param host 主机信息
- * @returns 用于显示的密码值
- */
+* Get the password display value
+* For encrypted passwords, placeholders are displayed, otherwise the original value is displayed.
+* @param host host information
+* @returns The password value used to display
+*/
 export const getPasswordDisplayValue = (host: any): string => {
   if (!host) return '';
   
-  // 如果密码已加密，显示占位符
+  // If the password is encrypted, placeholder is displayed
   if (isPasswordEncrypted(host)) {
     return '********';
   }
-  
-  // 否则显示原始密码
+// Otherwise, the original password will be displayed
   return host.password || '';
 };
 

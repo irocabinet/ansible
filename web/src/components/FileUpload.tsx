@@ -46,11 +46,11 @@ function FileUpload({ targetHostIds, onUploadComplete, onClose }: FileUploadProp
 
   const handleUpload = async () => {
     if (!file) {
-      toast.error("错误", { description: "请先选择一个文件" });
+      toast.error("mistake", { description: "Please select a file first" });
       return;
     }
     if (!remotePath.trim()) {
-      toast.error("错误", { description: "请输入远程服务器上的目标路径" });
+      toast.error("mistake", { description: "Please enter the target path on the remote server" });
       return;
     }
 
@@ -85,13 +85,13 @@ function FileUpload({ targetHostIds, onUploadComplete, onClose }: FileUploadProp
         
         if (failedCount === 0) {
           // 全部成功
-          toast.success("文件上传成功", { 
-            description: `文件已成功上传到所有目标主机的 ${remotePath}` 
+          toast.success("File upload successfully", { 
+            description: `The file has been successfully uploaded to all target hosts ${remotePath}` 
           });
         } else {
           // 部分成功
-          toast.warning("文件部分上传成功", { 
-            description: `成功: ${succeededCount}台, 失败: ${failedCount}台. 查看详情以了解更多信息。` 
+          toast.warning("File part upload successfully", { 
+            description: `success: ${succeededCount}Taiwan, failed:${failedCount}. See details for more information.` 
           });
         }
         
@@ -99,8 +99,8 @@ function FileUpload({ targetHostIds, onUploadComplete, onClose }: FileUploadProp
         onUploadComplete(); // 仅通知父组件上传完成
       } else {
         // 全部失败时的显示
-        toast.error("文件上传失败", {
-          description: response.data.message || "所有主机上传失败",
+        toast.error("File upload failed", {
+          description: response.data.message || "All hosts failed to upload",
         });
       }
     } catch (error) {
@@ -109,7 +109,7 @@ function FileUpload({ targetHostIds, onUploadComplete, onClose }: FileUploadProp
         ? error.message 
         : ((error as any).response?.data?.message || (error as any).response?.data?.error || "发生未知错误");
       
-      toast.error("文件上传失败", {
+      toast.error("File upload failed", {
         description: errorMsg,
       });
     } finally {
@@ -132,11 +132,11 @@ function FileUpload({ targetHostIds, onUploadComplete, onClose }: FileUploadProp
         <input {...getInputProps()} />
         <UploadCloudIcon className="mx-auto h-12 w-12 text-gray-400" />
         {isDragActive ? (
-          <p className="mt-2 text-sm text-primary">将文件拖到此处...</p>
+          <p className="mt-2 text-sm text-primary">Drag the file here...</p>
         ) : (
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">将文件拖放到此处，或点击选择文件</p>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">Drag and drop the file here, or click Select File</p>
         )}
-        <p className="text-xs text-gray-500 dark:text-gray-500">仅支持单个文件上传</p>
+        <p className="text-xs text-gray-500 dark:text-gray-500">Only single file uploads are supported</p>
       </div>
 
       {file && (
@@ -157,21 +157,20 @@ function FileUpload({ targetHostIds, onUploadComplete, onClose }: FileUploadProp
       )}
 
       <div className="grid gap-2">
-        <Label htmlFor="remotePath">远程路径</Label>
+        <Label htmlFor="remotePath">Remote path</Label>
         <Input 
           id="remotePath" 
-          placeholder="例如: /tmp/ 或 /home/user/" 
+          placeholder="For example: /tmp/ or/home/user/" 
           value={remotePath}
           onChange={(e) => setRemotePath(e.target.value)}
           disabled={isUploading}
         />
-        <p className="text-xs text-muted-foreground">文件将被上传到目标主机的这个目录下。</p>
+        <p className="text-xs text-muted-foreground">The file will be uploaded to this directory on the target host.</p>
       </div>
 
-      {/* 上传结果显示区域 */}
       {uploadResult && (
         <div className="border rounded-md p-3 bg-muted/90">
-          <h4 className="text-sm font-medium mb-2">上传结果</h4>
+          <h4 className="text-sm font-medium mb-2">Upload results</h4>
           <p className="text-sm mb-2">{uploadResult.message}</p>
           
           {uploadResult.details && (
@@ -180,11 +179,11 @@ function FileUpload({ targetHostIds, onUploadComplete, onClose }: FileUploadProp
                 <div>
                   <p className="font-medium text-green-600 dark:text-green-400 flex items-center gap-1">
                     <CheckCircleIcon className="h-3 w-3" />
-                    成功 ({uploadResult.details.succeeded.length})
+                   success ({uploadResult.details.succeeded.length})
                   </p>
                   <ul className="pl-5 list-disc">
                     {uploadResult.details.succeeded.map(hostId => (
-                      <li key={`success-${hostId}`}>主机 ID: {hostId}</li>
+                      <li key={`success-${hostId}`}>Host ID: {hostId}</li>
                     ))}
                   </ul>
                 </div>
@@ -194,12 +193,12 @@ function FileUpload({ targetHostIds, onUploadComplete, onClose }: FileUploadProp
                 <div>
                   <p className="font-medium text-red-600 dark:text-red-400 flex items-center gap-1 mt-2">
                     <XCircleIcon className="h-3 w-3" />
-                    失败 ({Object.keys(uploadResult.details.failed).length})
+                    fail ({Object.keys(uploadResult.details.failed).length})
                   </p>
                   <ul className="pl-5">
                     {Object.entries(uploadResult.details.failed).map(([hostId, errorMsg]) => (
                       <li key={`fail-${hostId}`} className="mb-1">
-                        <span className="font-medium">主机 ID: {hostId}</span>
+                        <span className="font-medium">Host ID: {hostId}</span>
                         <p className="text-red-500 dark:text-red-400">{errorMsg}</p>
                       </li>
                     ))}
@@ -213,16 +212,16 @@ function FileUpload({ targetHostIds, onUploadComplete, onClose }: FileUploadProp
 
       <div className="flex justify-end gap-2">
          <Button variant="outline" onClick={onClose} disabled={isUploading}>
-           {uploadResult ? '关闭' : '取消'}
+           {uploadResult ? 'Close' : 'Cancel'}
          </Button>
          {!uploadResult && (
            <Button onClick={handleUpload} disabled={!file || isUploading || !remotePath.trim()}>
-             {isUploading ? `上传中... (${uploadProgress}%)` : '开始上传'}
+             {isUploading ? 'Uploading... )' : 'Start uploading'}
            </Button>
          )}
          {uploadResult && uploadResult.success && (
            <Button variant="default" onClick={onClose}>
-             完成
+             Finish
            </Button>
          )}
       </div>

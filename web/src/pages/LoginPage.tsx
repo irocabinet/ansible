@@ -24,7 +24,7 @@ function LoginPage() {
     if (success) {
       navigate('/', { replace: true });
     } else {
-      setErrorMessage('用户名或密码错误');
+      setErrorMessage('Incorrect username or password');
     }
   };
 
@@ -32,13 +32,13 @@ function LoginPage() {
     <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl">登录</CardTitle>
-          <CardDescription>请输入您的凭据以访问Ansible面板。</CardDescription>
+          <CardTitle className="text-2xl">Log in</CardTitle>
+          <CardDescription>Please enter your credentials to access the Ansible panel.</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="grid gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="username">用户名</Label>
+              <Label htmlFor="username">username</Label>
               <Input 
                 id="username" 
                 type="text" 
@@ -49,7 +49,7 @@ function LoginPage() {
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="password">密码</Label>
+              <Label htmlFor="password">password</Label>
               <Input 
                 id="password" 
                 type="password" 
@@ -65,7 +65,7 @@ function LoginPage() {
           </CardContent>
           <CardFooter>
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? '登录中...' : '登录'}
+              {isLoading ? 'Login...' : 'Login'}
             </Button>
           </CardFooter>
         </form>
